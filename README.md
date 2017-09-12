@@ -9,37 +9,14 @@ You should sunset any application running Ruby 1.8.7 or upgrade it to use a more
 1. Clone this repo in the following manner:
 
   ```
-  git clone git@github.com:bacrossland/ruby_enterprise.git ruby-enterprise-1.8.7-2012.02
+  git clone https://github.com/pavelvasev/ruby_enterprise.git
   ```
-or download the zip version, unpack it and rename the ruby_enterprise folder to ruby-enterprise-1.8.7-2012.02.
 
 1. Use the installer and follow the directions.
 
   ```
-  ./ruby-enterprise-1.8.7-2012.02/installer
+  export CFLAGS="-fno-tree-dce -fno-optimize-sibling-calls"
+  ./ruby-enterprise/installer
   ```
-
-## Tar for deployment
-
-To tar this repo for deployment, do the following:
-
-1. Clone this repo in the following manner:
-
-  ```
-  git clone git@github.com:bacrossland/ruby_enterprise.git ruby-enterprise-1.8.7-2012.02
-  ```
-or download the zip version, unpack it and rename the ruby_enterprise folder to ruby-enterprise-1.8.7-2012.02.
-
-1. Tar the repo using the following command:
-
-  ```
-  tar -zcvf ruby-enterprise-1.8.7-2012.02.tar.gz ruby-enterprise-1.8.7-2012.02/
-  ```
-
-1. To unpack use the following command:
-
-  ```
-  tar -zxvf ruby-enterprise-1.8.7-2012.02.tar.gz
-  ```
-
-
+  
+  CFLAGS reason is https://github.com/rbenv/ruby-build/issues/488
