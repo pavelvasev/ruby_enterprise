@@ -21,7 +21,7 @@ You should sunset any application running Ruby 1.8.7 or upgrade it to use a more
 
   ```
   export CFLAGS="-fno-tree-dce -fno-optimize-sibling-calls"
-  ./ruby-enterprise/installer --dont-install-useful-gems
+  ./ruby_enterprise/installer --dont-install-useful-gems
   ```
   
   CFLAGS reason is https://github.com/rbenv/ruby-build/issues/488
