@@ -8,7 +8,7 @@ You should sunset any application running Ruby 1.8.7 or upgrade it to use a more
 
 1. Have installed packages:
   ```
-  apt-get install build-essential patch zlib1g-dev libssl-dev libreadline-gplv2-dev git autoconf byacc flex
+  apt-get install build-essential patch zlib1g-dev libssl-dev libreadline-gplv2-dev git autoconf byacc flex gperf
   ```
 
 1. Clone this repo in the following manner:
