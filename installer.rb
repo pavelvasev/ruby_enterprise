@@ -543,7 +543,7 @@ private
 			end
 			
 			if @prefix_changed || !File.exist?("Makefile")
-				if !sh("./configure --prefix=#{@prefix} #{configure_options}")
+				if !sh("autoconf && ./configure --prefix=#{@prefix} #{configure_options}")
 					return false
 				end
 			else
