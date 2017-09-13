@@ -2303,10 +2303,85 @@ fix_divmod(x, y)
     return rb_num_coerce_bin(x, y);
 }
 
+
+#if SIZEOF_LONG == SIZEOF_VOIDP
+# define SIGNED_VALUE long
+#elif SIZEOF_LONG_LONG == SIZEOF_VOIDP
+# define SIGNED_VALUE LONG_LONG
+#else
+# error ---->> ruby requires sizeof(void*) == sizeof(long) to be compiled. <<----
+#endif
+
+
+#define SQRT_LONG_MAX ((SIGNED_VALUE)1<<((SIZEOF_LONG*CHAR_BIT-1)/2))
+/*tests if N*N would overflow*/
+#define FIT_SQRT_LONG(n) (((n)<SQRT_LONG_MAX)&&((n)>=-SQRT_LONG_MAX))
+
+#define MUL_OVERFLOW_SIGNED_INTEGER_P(a, b, min, max) ( \
+    (a) == 0 ? 0 : \
+    (a) == -1 ? (b) < -(max) : \
+    (a) > 0 ? \
+      ((b) > 0 ? (max) / (a) < (b) : (min) / (a) > (b)) : \
+      ((b) > 0 ? (min) / (a) < (b) : (max) / (a) > (b)))
+#define MUL_OVERFLOW_FIXNUM_P(a, b) MUL_OVERFLOW_SIGNED_INTEGER_P(a, b, FIXNUM_MIN, FIXNUM_MAX)
+#define MUL_OVERFLOW_LONG_P(a, b) MUL_OVERFLOW_SIGNED_INTEGER_P(a, b, LONG_MIN, LONG_MAX)
+
+#ifndef USE_FLONUM
+#if SIZEOF_VALUE >= SIZEOF_DOUBLE
+#define USE_FLONUM 1
+#else
+#define USE_FLONUM 0
+#endif
+#endif
+
+#if USE_FLONUM
+#define FLONUM_P(x) ((((int)(SIGNED_VALUE)(x))&FLONUM_MASK) == FLONUM_FLAG)
+#else
+#define FLONUM_P(x) 0
+#endif
+
+#define RB_FLOAT_TYPE_P(obj) (FLONUM_P(obj) || (!SPECIAL_CONST_P(obj) && BUILTIN_TYPE(obj) == T_FLOAT))
+
 static VALUE
 int_pow(x, y)
     long x;
     unsigned long y;
+{
+      int neg = x < 0;
+      long z = 1;
+  
+      if (neg) x = -x;
+      if (y & 1)
+      z = x;
+      else
+      neg = 0;
+      y &= ~1;
+      do {
+      while (y % 2 == 0) {
+          if (!FIT_SQRT_LONG(x)) {
+          VALUE v;
+            bignum:
+          v = rb_big_pow(rb_int2big(x), LONG2NUM(y));
+          if (RB_FLOAT_TYPE_P(v)) /* infinity due to overflow */
+              return v;
+          if (z != 1) v = rb_big_mul(rb_int2big(neg ? -z : z), v);
+          return v;
+          }
+          x = x * x;
+          y >>= 1;
+      }
+      {
+          if (MUL_OVERFLOW_FIXNUM_P(x, z)) {
+              goto bignum;
+          }
+          z = x * z;
+      }
+     } while (--y);
+      if (neg) z = -z;
+      return LONG2NUM(z);
+}
+
+/*
 {
     int neg = x < 0;
     long z = 1;
@@ -2341,6 +2416,7 @@ int_pow(x, y)
     if (neg) z = -z;
     return LONG2NUM(z);
 }
+*/
 
 /*
  *  call-seq:
